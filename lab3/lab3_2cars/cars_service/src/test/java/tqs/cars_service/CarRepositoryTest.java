@@ -6,8 +6,9 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import tqs.cars_service.model.Car;
 import tqs.cars_service.repository.CarRepository;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import java.util.List;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 @DataJpaTest
 public class CarRepositoryTest {
@@ -15,15 +16,24 @@ public class CarRepositoryTest {
     private CarRepository carRepository;
 
     @Test
-    public void testFindById() {
-        Car car = new Car(1L, "Toyota", "Corolla");
-        carRepository.save(car);
+    void findByIdTest() {
+        Car car = new Car("BMW", "M3");
+        Car savedCar = carRepository.save(car);
 
-        Car found = carRepository.findById(1L).orElse(null);
+        Car foundCar = carRepository.findById(savedCar.getCarId()).orElse(null);
+        assertThat(foundCar).isNotNull();
+        assertThat(foundCar.getMaker()).isEqualTo("BMW");
+    }
 
-        assertNotNull(found);
-        assertEquals(1L, found.getCarId());
-        assertEquals("Toyota", found.getMaker());
-        assertEquals("Corolla", found.getModel());
+    @Test
+    void returnAllCarsTest() {
+        Car car1 = new Car("Audi", "A4");
+        Car car2 = new Car("Mercedes", "C-Class");
+
+        carRepository.save(car1);
+        carRepository.save(car2);
+
+        List<Car> allCars = carRepository.findAll();
+        assertThat(allCars).hasSize(2);
     }
 }
